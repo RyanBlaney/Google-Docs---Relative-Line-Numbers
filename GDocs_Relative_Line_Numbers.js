@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Google Docs - Caret Line Number and Injection
-// @namespace    https://github.com/RyanBlaney/Google-Docs---Relative-Line-Numbers
-// @version      1.8
+// @namespace    https://https://github.com/RyanBlaney/Google-Docs---Relative-Line-Numbers
+// @version      1.9
 // @description  Displays the line number of the caret position and injects characters to the left of the page in Google Docs
 // @match        https://docs.google.com/document/*
 // @author       Ryan Blaney
@@ -13,18 +13,17 @@
 
     let lastCaretRect = null;
     let lastUpdateTime = 0;
-    let verticalOffset = -5;
 
-    const injectCharacter = (caretRect, offset, text) => {
-        if (caretRect.top + window.scrollY + offset + verticalOffset < 120) return; // Cutoff to avoid displaying in toolbar
+    const injectCharacter = (caretRect, offset, text, center = false) => {
+        if (caretRect.top + window.scrollY + offset < 120) return; // Cutoff to avoid displaying in toolbar
 
         // Create a new marker
         const marker = document.createElement("div");
         marker.className = "caret-line-marker";
         marker.textContent = text;
         marker.style.position = "absolute";
-        marker.style.left = `${240}px`; // fixed position to the left of the caret
-        marker.style.top = `${caretRect.top + window.scrollY + offset + verticalOffset}px`; // align with caret
+        marker.style.left = center ? `${caretRect.left + window.scrollX}px` : '240px'; // fixed position to the left or centered at caret
+        marker.style.top = `${caretRect.top + window.scrollY + offset}px`; // align with caret
         marker.style.color = "red"; // make it visible
         marker.style.fontWeight = "bold";
         marker.style.zIndex = 1000; // ensure it is on top of other elements
@@ -64,12 +63,18 @@
 
                 // Adjust for zoom level
                 const zoomLevel = document.querySelector(".docs-title-outer").style.zoom || 1;
-                const lineHeight = caretRect.height / .85 * zoomLevel;
+                const lineHeight = (caretRect.height / .85) * zoomLevel;
 
                 // Inject markers for lines above and below
                 for (let i = 1; i <= 20; i++) { // Adjust range as needed
                     injectCharacter(caretRect, -lineHeight * i, i.toString()); // Above caret
                     injectCharacter(caretRect, lineHeight * i, i.toString()); // Below caret
+                }
+
+                // Inject additional "-" character every 5 lines above and below
+                for (let i = 5; i <= 20; i += 5) {
+                    injectCharacter(caretRect, -lineHeight * i, '-', true); // Above caret, centered
+                    injectCharacter(caretRect, lineHeight * i, '-', true); // Below caret, centered
                 }
 
                 lastUpdateTime = now;
