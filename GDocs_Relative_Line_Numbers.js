@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Google Docs - Caret Line Number and Injection
-// @namespace    https://example.com
+// @namespace    https://github.com/RyanBlaney/Google-Docs---Relative-Line-Numbers
 // @version      1.8
 // @description  Displays the line number of the caret position and injects characters to the left of the page in Google Docs
 // @match        https://docs.google.com/document/*
+// @author       Ryan Blaney
 // @grant        none
 // ==/UserScript==
 
