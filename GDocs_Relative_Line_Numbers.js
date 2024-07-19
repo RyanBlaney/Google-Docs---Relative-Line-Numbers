@@ -15,19 +15,18 @@
     let lastUpdateTime = 0;
 
     const injectCharacter = (caretRect, offset, text, center = false) => {
-        if (caretRect.top + window.scrollY + offset < 120) return; // Cutoff to avoid displaying in toolbar
+        if (caretRect.top + window.scrollY + offset < 120) return;
 
-        // Create a new marker
         const marker = document.createElement("div");
         marker.className = "caret-line-marker";
         marker.textContent = text;
         marker.style.position = "absolute";
-        marker.style.left = center ? `${caretRect.left + window.scrollX}px` : '240px'; // fixed position to the left or centered at caret
-        marker.style.top = `${caretRect.top + window.scrollY + offset}px`; // align with caret
-        marker.style.color = "red"; // make it visible
+        marker.style.left = center ? `${caretRect.left + window.scrollX}px` : `${540 - (caretRect.height * 16)}px`;
+        marker.style.top = `${caretRect.top + window.scrollY + offset}px`;
+        marker.style.color = "red";
         marker.style.fontWeight = "bold";
-        marker.style.zIndex = 1000; // ensure it is on top of other elements
-        marker.style.fontSize = "15px"; // size for visibility
+        marker.style.zIndex = 1000;
+        marker.style.fontSize = "15px";
 
         document.body.appendChild(marker);
     };
@@ -39,7 +38,6 @@
 
     const displayLineNumber = () => {
         const now = Date.now();
-        // Throttle the updates to once every 100ms
         if (now - lastUpdateTime < 100) return;
 
         const caret = document.querySelector(".kix-cursor-caret");
@@ -61,20 +59,17 @@
 
                 clearMarkers();
 
-                // Adjust for zoom level
                 const zoomLevel = document.querySelector(".docs-title-outer").style.zoom || 1;
                 const lineHeight = (caretRect.height / .85) * zoomLevel;
 
-                // Inject markers for lines above and below
-                for (let i = 1; i <= 20; i++) { // Adjust range as needed
-                    injectCharacter(caretRect, -lineHeight * i, i.toString()); // Above caret
-                    injectCharacter(caretRect, lineHeight * i, i.toString()); // Below caret
+                for (let i = 1; i <= 20; i++) {
+                    injectCharacter(caretRect, -lineHeight * i, i.toString());
+                    injectCharacter(caretRect, lineHeight * i, i.toString());
                 }
 
-                // Inject additional "-" character every 5 lines above and below
                 for (let i = 5; i <= 20; i += 5) {
-                    injectCharacter(caretRect, -lineHeight * i, '-', true); // Above caret, centered
-                    injectCharacter(caretRect, lineHeight * i, '-', true); // Below caret, centered
+                    injectCharacter(caretRect, -lineHeight * i, '-', true);
+                    injectCharacter(caretRect, lineHeight * i, '-', true);
                 }
 
                 lastUpdateTime = now;
@@ -94,13 +89,11 @@
         }
     };
 
-    // Add event listeners for key and mouse events
     document.addEventListener("keyup", displayLineNumber);
     document.addEventListener("keydown", displayLineNumber);
     document.addEventListener("mouseup", displayLineNumber);
-    document.addEventListener("scroll", displayLineNumber, true); // capture scroll events
+    document.addEventListener("scroll", displayLineNumber, true);
 
-    // Initial setup
     displayLineNumber();
     observeChanges();
 })();
